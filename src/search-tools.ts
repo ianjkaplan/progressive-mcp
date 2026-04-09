@@ -4,6 +4,7 @@ import { z } from "zod";
 import { normalizeObjectSchema } from "@modelcontextprotocol/sdk/server/zod-compat.js";
 import { toJsonSchemaCompat } from "@modelcontextprotocol/sdk/server/zod-json-schema-compat.js";
 import type { OnDemandToolEntry } from "./tool-registry.js";
+import { keywordSearch } from "./search.js";
 
 const EMPTY_OBJECT_JSON_SCHEMA = {
   type: "object" as const,
@@ -18,13 +19,6 @@ function toJsonSchema(entry: OnDemandToolEntry) {
     : EMPTY_OBJECT_JSON_SCHEMA;
 }
 
-function matchesQuery(entry: OnDemandToolEntry, query: string): boolean {
-  const lowerQuery = query.toLowerCase();
-  const terms = lowerQuery.split(/\s+/).filter(Boolean);
-  const haystack = `${entry.name} ${entry.description ?? ""}`.toLowerCase();
-  return terms.every((term) => haystack.includes(term));
-}
-
 async function searchToolsPlugin(fastify: FastifyInstance) {
   fastify.mcp.registerTool(
     "search_tools",
@@ -35,21 +29,16 @@ async function searchToolsPlugin(fastify: FastifyInstance) {
       inputSchema: { query: z.string().describe("Natural language search query describing the tool you need") },
     },
     ({ query }) => {
-      const results: Array<{
-        name: string;
-        description?: string;
-        inputSchema: unknown;
-      }> = [];
+      const matches = keywordSearch(fastify.mcp.onDemandTools.values(), query);
 
-      for (const entry of fastify.mcp.onDemandTools.values()) {
-        if (matchesQuery(entry, query)) {
-          results.push({
-            name: entry.name,
-            description: entry.description,
-            inputSchema: toJsonSchema(entry),
-          });
-        }
-      }
+      const tools = matches.map((m) => {
+        const entry = fastify.mcp.onDemandTools.get(m.name)!;
+        return {
+          name: m.name,
+          description: m.description,
+          inputSchema: toJsonSchema(entry),
+        };
+      });
 
       return {
         content: [
@@ -57,8 +46,8 @@ async function searchToolsPlugin(fastify: FastifyInstance) {
             type: "text" as const,
             text: JSON.stringify(
               {
-                matches: results.length,
-                tools: results,
+                matches: tools.length,
+                tools,
               },
               null,
               2,
