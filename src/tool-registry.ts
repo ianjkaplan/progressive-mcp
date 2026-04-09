@@ -98,5 +98,5 @@ async function toolRegistryPlugin(
 
 export default fp(toolRegistryPlugin, {
   fastify: "5.x",
-  name: "unify-mcp-tool-registry",
+  name: "progressive-mcp-tool-registry",
 });

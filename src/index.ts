@@ -6,15 +6,15 @@ import toolRegistryPlugin from "./tool-registry.js";
 import searchToolsPlugin from "./search-tools.js";
 import callToolPlugin from "./call-tool.js";
 
-export interface UnifyMcpPluginOptions {
+export interface ProgressiveMcpPluginOptions {
   path: string;
   name: string;
   version: string;
 }
 
-async function unifyMcpPlugin(
+async function progressiveMcpPlugin(
   fastify: FastifyInstance,
-  opts: UnifyMcpPluginOptions,
+  opts: ProgressiveMcpPluginOptions,
 ) {
   const { path, name, version } = opts;
   const server = new McpServer({ name, version });
@@ -49,7 +49,7 @@ async function unifyMcpPlugin(
   });
 }
 
-export default fp(unifyMcpPlugin, {
+export default fp(progressiveMcpPlugin, {
   fastify: "5.x",
-  name: "unify-mcp",
+  name: "progressive-mcp",
 });

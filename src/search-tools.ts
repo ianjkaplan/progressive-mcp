@@ -72,6 +72,6 @@ async function searchToolsPlugin(fastify: FastifyInstance) {
 
 export default fp(searchToolsPlugin, {
   fastify: "5.x",
-  name: "unify-mcp-search-tools",
-  dependencies: ["unify-mcp-tool-registry"],
+  name: "progressive-mcp-search-tools",
+  dependencies: ["progressive-mcp-tool-registry"],
 });

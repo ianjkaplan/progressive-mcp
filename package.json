@@ -1,7 +1,7 @@
 {
-  "name": "unify-mcp",
+  "name": "progressive-mcp",
   "version": "0.0.0",
-  "description": "Unify MCP Fastify plugin",
+  "description": "Progressive MCP Fastify plugin",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
@@ -35,14 +35,14 @@
     "typescript": "^6.0.2",
     "vite": "^8.0.8",
     "vite-plugin-dts": "^4.5.4",
-    "vitest": "^4.1.4",
-    "zod": "^4.3.6"
+    "vitest": "^4.1.4"
   },
   "dependencies": {
     "fastify-plugin": "^5.1.0"
   },
   "peerDependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
-    "fastify": "^5.8.4"
+    "fastify": "^5.8.4",
+    "zod": "^4.3.6"
   }
 }

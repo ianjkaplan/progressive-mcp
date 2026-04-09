@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import Fastify, { type FastifyInstance } from "fastify";
 import { z } from "zod";
-import unifyMcpPlugin from "./index.js";
+import progressiveMcpPlugin from "./index.js";
 import { jsonrpc } from "./jsonrpc.js";
 
 const MCP_PATH = "/mcp";
@@ -11,7 +11,7 @@ describe("call_tool", () => {
 
   beforeEach(async () => {
     fastify = Fastify();
-    await fastify.register(unifyMcpPlugin, {
+    await fastify.register(progressiveMcpPlugin, {
       path: MCP_PATH,
       name: "test-server",
       version: "1.0.0",

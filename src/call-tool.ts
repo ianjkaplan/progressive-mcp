@@ -82,6 +82,6 @@ async function callToolPlugin(fastify: FastifyInstance) {
 
 export default fp(callToolPlugin, {
   fastify: "5.x",
-  name: "unify-mcp-call-tool",
-  dependencies: ["unify-mcp-search-tools"],
+  name: "progressive-mcp-call-tool",
+  dependencies: ["progressive-mcp-search-tools"],
 });
