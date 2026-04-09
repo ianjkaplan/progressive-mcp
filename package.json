@@ -16,6 +16,16 @@
         "types": "./dist/index.d.ts",
         "default": "./dist/index.cjs"
       }
+    },
+    "./search": {
+      "import": {
+        "types": "./dist/search.d.ts",
+        "default": "./dist/search.mjs"
+      },
+      "require": {
+        "types": "./dist/search.d.ts",
+        "default": "./dist/search.cjs"
+      }
     }
   },
   "files": [
