@@ -5,9 +5,15 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import toolRegistryPlugin from "./tool-registry.js";
 import searchToolsPlugin from "./search-tools.js";
 import callToolPlugin from "./call-tool.js";
+import type { SearchFunction } from "./search.js";
+
+interface SharedOptions {
+  /** Optional custom search function to replace the built-in RRF pipeline. */
+  search?: SearchFunction;
+}
 
 /** Use an existing McpServer instance with the plugin. */
-interface ProgressiveMcpServerOptions {
+interface ProgressiveMcpServerOptions extends SharedOptions {
   /** Route path for the MCP endpoint (e.g. "/mcp"). */
   path: string;
   /** Pre-configured McpServer to use. */
@@ -15,7 +21,7 @@ interface ProgressiveMcpServerOptions {
 }
 
 /** Let the plugin create an McpServer internally. */
-interface ProgressiveMcpConfigOptions {
+interface ProgressiveMcpConfigOptions extends SharedOptions {
   /** Route path for the MCP endpoint (e.g. "/mcp"). */
   path: string;
   /** Server name surfaced in the MCP initialize response. */
@@ -43,7 +49,9 @@ async function progressiveMcpPlugin(
       : new McpServer({ name: opts.name, version: opts.version });
 
   await fastify.register(toolRegistryPlugin, { server });
-  await fastify.register(searchToolsPlugin);
+  await fastify.register(searchToolsPlugin, {
+    search: opts.search,
+  });
   await fastify.register(callToolPlugin);
 
   /**
@@ -71,6 +79,16 @@ async function progressiveMcpPlugin(
     return reply.hijack();
   });
 }
+
+export type { SearchFunction, SearchResult } from "./search.js";
+export {
+  searchTools,
+  keywordSearch,
+  keywordRank,
+  fuzzyScore,
+  bm25Rank,
+  reciprocalRankFusion,
+} from "./search.js";
 
 export default fp(progressiveMcpPlugin, {
   fastify: "5.x",

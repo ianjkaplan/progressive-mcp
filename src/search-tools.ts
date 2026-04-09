@@ -4,7 +4,8 @@ import { z } from "zod";
 import { normalizeObjectSchema } from "@modelcontextprotocol/sdk/server/zod-compat.js";
 import { toJsonSchemaCompat } from "@modelcontextprotocol/sdk/server/zod-json-schema-compat.js";
 import type { OnDemandToolEntry } from "./tool-registry.js";
-import { searchTools } from "./search.js";
+import { searchTools as defaultSearch } from "./search.js";
+import type { SearchFunction } from "./search.js";
 
 const EMPTY_OBJECT_JSON_SCHEMA = {
   type: "object" as const,
@@ -19,7 +20,15 @@ function toJsonSchema(entry: OnDemandToolEntry) {
     : EMPTY_OBJECT_JSON_SCHEMA;
 }
 
-async function searchToolsPlugin(fastify: FastifyInstance) {
+export interface SearchToolsPluginOptions {
+  search?: SearchFunction;
+}
+
+async function searchToolsPlugin(
+  fastify: FastifyInstance,
+  opts: SearchToolsPluginOptions,
+) {
+  const search: SearchFunction = opts.search ?? defaultSearch;
   fastify.mcp.registerTool(
     "search_tools",
     {
@@ -40,8 +49,12 @@ async function searchToolsPlugin(fastify: FastifyInstance) {
           .describe("Maximum number of results to return"),
       },
     },
-    ({ query, limit }) => {
-      const matches = searchTools(fastify.mcp.onDemandTools.values(), query, limit);
+    async ({ query, limit }) => {
+      const matches = await search(
+        [...fastify.mcp.onDemandTools.values()],
+        query,
+        limit,
+      );
 
       const tools = matches.map((m) => {
         const entry = fastify.mcp.onDemandTools.get(m.name)!;

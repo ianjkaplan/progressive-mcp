@@ -6,6 +6,18 @@ export interface SearchResult {
   score: number;
 }
 
+/**
+ * Signature for a custom search function. Consumers can provide their own
+ * implementation (e.g. embedding-based) to fully replace the built-in
+ * RRF pipeline. Receives the on-demand tool entries, the query string,
+ * and an optional limit.
+ */
+export type SearchFunction = (
+  tools: OnDemandToolEntry[],
+  query: string,
+  limit?: number,
+) => SearchResult[] | Promise<SearchResult[]>;
+
 function parameterNames(entry: OnDemandToolEntry): string {
   const schema = entry.inputSchema;
   if (!schema || typeof schema !== "object") return "";
@@ -290,24 +302,26 @@ function fuzzyRank(
 // ---------------------------------------------------------------------------
 
 /**
- * Search tools using Reciprocal Rank Fusion over three independent rankers:
- * 1. keywordRank  — exact term matching, ranked by hit count
- * 2. bm25Rank     — probabilistic TF-IDF relevance (Okapi BM25)
- * 3. fuzzyRank    — trigram similarity for typo tolerance
+ * Default search implementation using Reciprocal Rank Fusion over three
+ * independent rankers:
+ * 1. keywordRank — exact term matching, ranked by hit count
+ * 2. bm25Rank   — probabilistic TF-IDF relevance (Okapi BM25)
+ * 3. fuzzyRank  — trigram similarity for typo tolerance
  *
  * Each ranker produces a ranked list; RRF fuses them into a single ranking.
+ * This function satisfies the SearchFunction signature and is used as the
+ * default when no custom search is provided.
  */
 export function searchTools(
-  tools: Iterable<OnDemandToolEntry>,
+  tools: OnDemandToolEntry[],
   query: string,
   limit?: number,
 ): SearchResult[] {
-  const toolArray = [...tools];
   const terms = query.trim();
 
   // Empty query returns all tools with equal score.
   if (terms.length === 0) {
-    const all = toolArray.map((t) => ({
+    const all = tools.map((t) => ({
       name: t.name,
       description: t.description,
       score: 1,
@@ -315,16 +329,16 @@ export function searchTools(
     return limit != null ? all.slice(0, limit) : all;
   }
 
-  const lists = [
-    keywordRank(toolArray, query),
-    bm25Rank(toolArray, query),
-    fuzzyRank(toolArray, query),
+  const lists: string[][] = [
+    keywordRank(tools, query),
+    bm25Rank(tools, query),
+    fuzzyRank(tools, query),
   ];
 
   const fused = reciprocalRankFusion(lists);
 
   // Attach descriptions from the original tool entries.
-  const byName = new Map(toolArray.map((t) => [t.name, t]));
+  const byName = new Map(tools.map((t) => [t.name, t]));
   const results = fused.map((r) => ({
     ...r,
     description: byName.get(r.name)?.description,
