@@ -26,7 +26,13 @@ async function searchToolsPlugin(fastify: FastifyInstance) {
       visibility: "always",
       description:
         "Search for available on-demand tools by natural language query. Returns matching tool definitions including their full inputSchema so you can call them via call_tool.",
-      inputSchema: { query: z.string().describe("Natural language search query describing the tool you need") },
+      inputSchema: {
+        query: z
+          .string()
+          .describe(
+            "Natural language search query describing the tool you need",
+          ),
+      },
     },
     ({ query }) => {
       const matches = keywordSearch(fastify.mcp.onDemandTools.values(), query);
@@ -44,14 +50,10 @@ async function searchToolsPlugin(fastify: FastifyInstance) {
         content: [
           {
             type: "text" as const,
-            text: JSON.stringify(
-              {
-                matches: tools.length,
-                tools,
-              },
-              null,
-              2,
-            ),
+            text: JSON.stringify({
+              matches: tools.length,
+              tools,
+            }),
           },
         ],
       };

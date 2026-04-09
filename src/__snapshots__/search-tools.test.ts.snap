@@ -1,0 +1,99 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`search_tools > does not return always-visible tools 1`] = `
+{
+  "matches": 0,
+  "tools": [],
+}
+`;
+
+exports[`search_tools > matches on multiple terms (AND logic) 1`] = `
+{
+  "matches": 1,
+  "tools": [
+    {
+      "description": "Create a new calendar event",
+      "inputSchema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "properties": {
+          "date": {
+            "type": "string",
+          },
+          "title": {
+            "type": "string",
+          },
+        },
+        "required": [
+          "title",
+          "date",
+        ],
+        "type": "object",
+      },
+      "name": "create-calendar-event",
+    },
+  ],
+}
+`;
+
+exports[`search_tools > matches tool by partial name 1`] = `
+{
+  "matches": 1,
+  "tools": [
+    {
+      "description": "Create a new calendar event",
+      "inputSchema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "properties": {
+          "date": {
+            "type": "string",
+          },
+          "title": {
+            "type": "string",
+          },
+        },
+        "required": [
+          "title",
+          "date",
+        ],
+        "type": "object",
+      },
+      "name": "create-calendar-event",
+    },
+  ],
+}
+`;
+
+exports[`search_tools > returns empty results when no tools match 1`] = `
+{
+  "matches": 0,
+  "tools": [],
+}
+`;
+
+exports[`search_tools > returns matching on-demand tools by keyword 1`] = `
+{
+  "matches": 1,
+  "tools": [
+    {
+      "description": "Send an email to a recipient",
+      "inputSchema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "properties": {
+          "body": {
+            "type": "string",
+          },
+          "to": {
+            "type": "string",
+          },
+        },
+        "required": [
+          "to",
+          "body",
+        ],
+        "type": "object",
+      },
+      "name": "send-email",
+    },
+  ],
+}
+`;

@@ -99,49 +99,34 @@ describe("search_tools", () => {
     const body = await callTool("search_tools", { query: "email" });
     const result = parseSearchResult(body);
 
-    expect(result.matches).toBe(1);
-    expect(result.tools[0].name).toBe("send-email");
-    expect(result.tools[0].description).toBe("Send an email to a recipient");
+    expect(result).toMatchSnapshot();
   });
 
-  it("returns inputSchema as JSON Schema", async () => {
-    const body = await callTool("search_tools", { query: "email" });
-    const result = parseSearchResult(body);
-
-    const schema = result.tools[0].inputSchema;
-    expect(schema.type).toBe("object");
-    expect(schema.properties).toHaveProperty("to");
-    expect(schema.properties).toHaveProperty("body");
-  });
-
-  it("matches multiple tools when query is broad", async () => {
+  it("matches tool by partial name", async () => {
     const body = await callTool("search_tools", { query: "create" });
     const result = parseSearchResult(body);
 
-    expect(result.matches).toBe(1);
-    expect(result.tools[0].name).toBe("create-calendar-event");
+    expect(result).toMatchSnapshot();
   });
 
   it("returns empty results when no tools match", async () => {
     const body = await callTool("search_tools", { query: "nonexistent" });
     const result = parseSearchResult(body);
 
-    expect(result.matches).toBe(0);
-    expect(result.tools).toHaveLength(0);
+    expect(result).toMatchSnapshot();
   });
 
   it("does not return always-visible tools", async () => {
     const body = await callTool("search_tools", { query: "visible" });
     const result = parseSearchResult(body);
 
-    expect(result.matches).toBe(0);
+    expect(result).toMatchSnapshot();
   });
 
   it("matches on multiple terms (AND logic)", async () => {
     const body = await callTool("search_tools", { query: "calendar event" });
     const result = parseSearchResult(body);
 
-    expect(result.matches).toBe(1);
-    expect(result.tools[0].name).toBe("create-calendar-event");
+    expect(result).toMatchSnapshot();
   });
 });
