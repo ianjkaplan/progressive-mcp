@@ -27,7 +27,7 @@ describe("toolRegistryPlugin", () => {
 
   it("delegates to server.registerTool", () => {
     const cb = () => ({ content: [{ type: "text" as const, text: "ok" }] });
-    fastify.mcp.registerTool("my-tool", {}, cb);
+    fastify.mcp.registerTool("my-tool", { visibility: "always" }, cb);
 
     expect(spy).toHaveBeenCalledWith("my-tool", {}, cb);
   });
@@ -38,7 +38,7 @@ describe("toolRegistryPlugin", () => {
       inputSchema: { input: z.string() },
     };
     const cb = () => ({ content: [{ type: "text" as const, text: "ok" }] });
-    fastify.mcp.registerTool("my-tool", config, cb);
+    fastify.mcp.registerTool("my-tool", { visibility: "always", ...config }, cb);
 
     expect(spy).toHaveBeenCalledWith("my-tool", config, cb);
   });

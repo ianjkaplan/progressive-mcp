@@ -20,6 +20,7 @@ describe("unify-mcp integration", () => {
     fastify.mcp.registerTool(
       "greet",
       {
+        visibility: "always",
         description: "Greets someone by name",
         inputSchema: { name: z.string() },
       },
