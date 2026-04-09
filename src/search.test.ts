@@ -295,4 +295,26 @@ describe("searchTools", () => {
     const results = searchTools(tools, "");
     expect(results).toHaveLength(tools.length);
   });
+
+  it("respects limit parameter", () => {
+    const results = searchTools(tools, "a", 1);
+    expect(results).toHaveLength(1);
+  });
+
+  it("returns all results when limit exceeds matches", () => {
+    const results = searchTools(tools, "email", 100);
+    expect(results.length).toBeGreaterThan(0);
+    expect(results.length).toBeLessThanOrEqual(tools.length);
+  });
+
+  it("respects limit on empty query", () => {
+    const results = searchTools(tools, "", 2);
+    expect(results).toHaveLength(2);
+  });
+
+  it("returns all results when limit is undefined", () => {
+    const withLimit = searchTools(tools, "a", undefined);
+    const without = searchTools(tools, "a");
+    expect(withLimit).toEqual(without);
+  });
 });

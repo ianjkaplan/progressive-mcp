@@ -300,17 +300,19 @@ function fuzzyRank(
 export function searchTools(
   tools: Iterable<OnDemandToolEntry>,
   query: string,
+  limit?: number,
 ): SearchResult[] {
   const toolArray = [...tools];
   const terms = query.trim();
 
   // Empty query returns all tools with equal score.
   if (terms.length === 0) {
-    return toolArray.map((t) => ({
+    const all = toolArray.map((t) => ({
       name: t.name,
       description: t.description,
       score: 1,
     }));
+    return limit != null ? all.slice(0, limit) : all;
   }
 
   const lists = [
@@ -323,8 +325,10 @@ export function searchTools(
 
   // Attach descriptions from the original tool entries.
   const byName = new Map(toolArray.map((t) => [t.name, t]));
-  return fused.map((r) => ({
+  const results = fused.map((r) => ({
     ...r,
     description: byName.get(r.name)?.description,
   }));
+
+  return limit != null ? results.slice(0, limit) : results;
 }

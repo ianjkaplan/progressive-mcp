@@ -32,10 +32,16 @@ async function searchToolsPlugin(fastify: FastifyInstance) {
           .describe(
             "Natural language search query describing the tool you need",
           ),
+        limit: z
+          .number()
+          .int()
+          .positive()
+          .optional()
+          .describe("Maximum number of results to return"),
       },
     },
-    ({ query }) => {
-      const matches = searchTools(fastify.mcp.onDemandTools.values(), query);
+    ({ query, limit }) => {
+      const matches = searchTools(fastify.mcp.onDemandTools.values(), query, limit);
 
       const tools = matches.map((m) => {
         const entry = fastify.mcp.onDemandTools.get(m.name)!;
