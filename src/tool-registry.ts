@@ -11,24 +11,44 @@ import type {
 
 export type ToolVisibility = "always" | "on-demand";
 
+interface ToolSchemaFields<
+  OutputArgs extends ZodRawShapeCompat | AnySchema =
+    | ZodRawShapeCompat
+    | AnySchema,
+  InputArgs extends undefined | ZodRawShapeCompat | AnySchema = undefined,
+> {
+  description?: string;
+  inputSchema?: InputArgs;
+  outputSchema?: OutputArgs;
+}
+
+export interface OnDemandToolEntry extends ToolSchemaFields<
+  ZodRawShapeCompat | AnySchema,
+  ZodRawShapeCompat | AnySchema | undefined
+> {
+  name: string;
+  registered: RegisteredTool;
+}
+
 // Mirrors the generic signature of McpServer.registerTool. We can't use
 // Parameters<McpServer["registerTool"]> because TypeScript collapses the
 // unresolved generics to their constraints, producing `never` for callback args.
 type RegisterToolConfig<
-  OutputArgs extends ZodRawShapeCompat | AnySchema = ZodRawShapeCompat | AnySchema,
+  OutputArgs extends ZodRawShapeCompat | AnySchema =
+    | ZodRawShapeCompat
+    | AnySchema,
   InputArgs extends undefined | ZodRawShapeCompat | AnySchema = undefined,
-> = {
+> = ToolSchemaFields<OutputArgs, InputArgs> & {
   title?: string;
-  description?: string;
-  inputSchema?: InputArgs;
-  outputSchema?: OutputArgs;
   annotations?: ToolAnnotations;
   _meta?: Record<string, unknown>;
   visibility: ToolVisibility;
 };
 
 type RegisterToolFn = <
-  OutputArgs extends ZodRawShapeCompat | AnySchema = ZodRawShapeCompat | AnySchema,
+  OutputArgs extends ZodRawShapeCompat | AnySchema =
+    | ZodRawShapeCompat
+    | AnySchema,
   InputArgs extends undefined | ZodRawShapeCompat | AnySchema = undefined,
 >(
   name: string,
@@ -40,6 +60,7 @@ declare module "fastify" {
   interface FastifyInstance {
     mcp: {
       registerTool: RegisterToolFn;
+      onDemandTools: ReadonlyMap<string, OnDemandToolEntry>;
     };
   }
 }
@@ -53,6 +74,7 @@ async function toolRegistryPlugin(
   opts: ToolRegistryOptions,
 ) {
   const server = opts.server;
+  const onDemandTools = new Map<string, OnDemandToolEntry>();
 
   fastify.decorate("mcp", {
     registerTool(name, config, cb) {
@@ -60,9 +82,17 @@ async function toolRegistryPlugin(
       const registered = server.registerTool(name, sdkConfig, cb);
       if (visibility === "on-demand") {
         registered.disable();
+        onDemandTools.set(name, {
+          name,
+          description: config.description,
+          inputSchema: config.inputSchema,
+          outputSchema: config.outputSchema,
+          registered,
+        });
       }
       return registered;
     },
+    onDemandTools: onDemandTools as ReadonlyMap<string, OnDemandToolEntry>,
   });
 }
 

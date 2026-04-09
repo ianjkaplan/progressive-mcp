@@ -135,7 +135,8 @@ describe("tool visibility", () => {
     expect(names).toContain("always-b");
     expect(names).not.toContain("on-demand-c");
     expect(names).not.toContain("on-demand-d");
-    expect(names).toHaveLength(2);
+    // 2 user-registered always-visible tools + search_tools + call_tool
+    expect(names).toHaveLength(4);
   });
 
 });

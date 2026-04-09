@@ -3,6 +3,8 @@ import type { FastifyInstance } from "fastify";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import toolRegistryPlugin from "./tool-registry.js";
+import searchToolsPlugin from "./search-tools.js";
+import callToolPlugin from "./call-tool.js";
 
 export interface UnifyMcpPluginOptions {
   path: string;
@@ -18,6 +20,8 @@ async function unifyMcpPlugin(
   const server = new McpServer({ name, version });
 
   await fastify.register(toolRegistryPlugin, { server });
+  await fastify.register(searchToolsPlugin);
+  await fastify.register(callToolPlugin);
 
   /**
    * minimal mcp endpoint for stateless requests
