@@ -6,18 +6,41 @@ import toolRegistryPlugin from "./tool-registry.js";
 import searchToolsPlugin from "./search-tools.js";
 import callToolPlugin from "./call-tool.js";
 
-export interface ProgressiveMcpPluginOptions {
+/** Use an existing McpServer instance with the plugin. */
+interface ProgressiveMcpServerOptions {
+  /** Route path for the MCP endpoint (e.g. "/mcp"). */
   path: string;
+  /** Pre-configured McpServer to use. */
+  server: McpServer;
+}
+
+/** Let the plugin create an McpServer internally. */
+interface ProgressiveMcpConfigOptions {
+  /** Route path for the MCP endpoint (e.g. "/mcp"). */
+  path: string;
+  /** Server name surfaced in the MCP initialize response. */
   name: string;
+  /** Server version surfaced in the MCP initialize response. */
   version: string;
 }
+
+/**
+ * Plugin options — either supply your own McpServer or provide a name and
+ * version and the plugin will create one for you.
+ */
+export type ProgressiveMcpPluginOptions =
+  | ProgressiveMcpServerOptions
+  | ProgressiveMcpConfigOptions;
 
 async function progressiveMcpPlugin(
   fastify: FastifyInstance,
   opts: ProgressiveMcpPluginOptions,
 ) {
-  const { path, name, version } = opts;
-  const server = new McpServer({ name, version });
+  const { path } = opts;
+  const server =
+    "server" in opts
+      ? opts.server
+      : new McpServer({ name: opts.name, version: opts.version });
 
   await fastify.register(toolRegistryPlugin, { server });
   await fastify.register(searchToolsPlugin);
