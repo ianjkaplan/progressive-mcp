@@ -24,6 +24,7 @@ export interface SearchToolsPluginOptions {
   search?: SearchFunction;
 }
 
+// eslint-disable-next-line @typescript-eslint/require-await -- fastify plugins must be async
 async function searchToolsPlugin(
   fastify: FastifyInstance,
   opts: SearchToolsPluginOptions,
@@ -56,14 +57,17 @@ async function searchToolsPlugin(
         limit,
       );
 
-      const tools = matches.map((m) => {
-        const entry = fastify.mcp.onDemandTools.get(m.name)!;
-        return {
-          name: m.name,
-          description: m.description,
-          inputSchema: toJsonSchema(entry),
-        };
-      });
+      const tools = matches
+        .map((m) => {
+          const entry = fastify.mcp.onDemandTools.get(m.name);
+          if (!entry) return null;
+          return {
+            name: m.name,
+            description: m.description,
+            inputSchema: toJsonSchema(entry),
+          };
+        })
+        .filter((t) => t !== null);
 
       return {
         content: [

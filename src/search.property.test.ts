@@ -128,7 +128,7 @@ describe("reciprocalRankFusion properties", () => {
 
   it("monotonicity: adding a list where X ranks first never decreases X's score", () => {
     fc.assert(
-      fc.property(rankedLists, fc.constantFrom(..."abcdefghij"), (lists, x) => {
+      fc.property(rankedLists, fc.constantFrom(...Array.from("abcdefghij")), (lists, x) => {
         const baseFused = reciprocalRankFusion(lists);
         const baseScore = baseFused.find((r) => r.name === x)?.score ?? 0;
 

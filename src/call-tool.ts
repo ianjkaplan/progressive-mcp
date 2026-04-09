@@ -3,6 +3,7 @@ import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { isToolCallback } from "./guards.js";
 
+// eslint-disable-next-line @typescript-eslint/require-await -- fastify plugins must be async
 async function callToolPlugin(fastify: FastifyInstance) {
   fastify.mcp.registerTool(
     "call_tool",
@@ -24,7 +25,9 @@ async function callToolPlugin(fastify: FastifyInstance) {
     ({ tool_name, arguments: rawArgs }) => {
       let args: Record<string, unknown> | undefined;
       try {
-        args = rawArgs ? JSON.parse(rawArgs) : undefined;
+        args = rawArgs
+          ? (JSON.parse(rawArgs) as Record<string, unknown>)
+          : undefined;
       } catch {
         return {
           isError: true,

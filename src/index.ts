@@ -67,10 +67,10 @@ async function progressiveMcpPlugin(
     });
 
     request.raw.on("close", () => {
-      transport.close();
+      void transport.close();
     });
     reply.raw.on("close", () => {
-      transport.close();
+      void transport.close();
     });
 
     await server.connect(transport);

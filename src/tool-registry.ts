@@ -69,6 +69,7 @@ export interface ToolRegistryOptions {
   server: McpServer;
 }
 
+// eslint-disable-next-line @typescript-eslint/require-await -- fastify plugins must be async
 async function toolRegistryPlugin(
   fastify: FastifyInstance,
   opts: ToolRegistryOptions,
