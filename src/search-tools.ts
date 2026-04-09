@@ -4,7 +4,7 @@ import { z } from "zod";
 import { normalizeObjectSchema } from "@modelcontextprotocol/sdk/server/zod-compat.js";
 import { toJsonSchemaCompat } from "@modelcontextprotocol/sdk/server/zod-json-schema-compat.js";
 import type { OnDemandToolEntry } from "./tool-registry.js";
-import { keywordSearch } from "./search.js";
+import { searchTools } from "./search.js";
 
 const EMPTY_OBJECT_JSON_SCHEMA = {
   type: "object" as const,
@@ -35,7 +35,7 @@ async function searchToolsPlugin(fastify: FastifyInstance) {
       },
     },
     ({ query }) => {
-      const matches = keywordSearch(fastify.mcp.onDemandTools.values(), query);
+      const matches = searchTools(fastify.mcp.onDemandTools.values(), query);
 
       const tools = matches.map((m) => {
         const entry = fastify.mcp.onDemandTools.get(m.name)!;

@@ -32,6 +32,7 @@
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^25.5.2",
+    "fast-check": "^4.6.0",
     "typescript": "^6.0.2",
     "vite": "^8.0.8",
     "vite-plugin-dts": "^4.5.4",
